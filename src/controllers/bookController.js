@@ -3,12 +3,12 @@ import { authors, books } from "../models/index.js";
 
 class BookController {
     
+    //http://localhost:3000/books?authorName=Flandly&sort=title:1&page=2
     static getBooks = async (req, res, next) => {
         try {
-            const booksFound = await books.find()
-                .populate("author")
-                .exec();
-            res.status(200).json(booksFound);
+            const search = books.find();
+            req.result = search;
+            next();
         } catch (error) {
             next(error);
         }
@@ -72,10 +72,11 @@ class BookController {
         try {
             const search = await processSearch(req.query);
             if (search !== null) {
-                const booksByEditor = await books
+                const booksByEditor = books
                     .find(search)
                     .populate("author");
-                res.status(200).json(booksByEditor);
+                    req.result = booksByEditor;
+                next();
             } else {
                 res.status(200).send([]);
             }
